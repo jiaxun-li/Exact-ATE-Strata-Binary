@@ -1,3 +1,5 @@
+# Extend Permutation method
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -67,7 +69,7 @@ def Ni_generator(matrix_ni: list) -> tuple:
                     res.append([N11,N10,N01,N00])
     return res
 
-def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
+def confidence_interval_permute(matrix_n,alpha=0.05,replication=10000):
     k=len(matrix_n)
     N=[np.sum(matrix_n[i]) for i in range(k)]
     n=[matrix_n[i][0]+matrix_n[i][1] for i in range(k)]
@@ -75,11 +77,17 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
     U=-np.sum(matrix_n)
     Z_perm=Z_generator(N, n, replication)
     matrix_N_list=[]
+    s=1
     for i in range(k):
-        matrix_N_list.append(Ni_generator(matrix_n[i]))
+        temp=Ni_generator(matrix_n[i])
+        matrix_N_list.append(temp)
+        s*=len(temp)
+    j=1
+    temp=0
     for matrix_N in product(*matrix_N_list):
         tau=sum(matrix_N[i][1]-matrix_N[i][2] for i in range(k))
-
+        j+=1
+        temp=j/s
         if L<=tau and tau<=U:
             continue
         p=p_value_matrix(matrix_n,matrix_N,Z_perm)
@@ -91,3 +99,10 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
             U=tau
 
     return [L, U]
+
+
+# matrix_n=[
+#     [10,10,1,10],
+#     [10,10,10,10]
+# ]
+# print(confidence_interval_permute(matrix_n))

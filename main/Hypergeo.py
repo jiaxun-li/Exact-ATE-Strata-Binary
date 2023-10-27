@@ -1,3 +1,5 @@
+#Fast method and WS method
+
 import math
 from scipy.stats import binom, hypergeom, chi2
 import scipy as sp
@@ -651,4 +653,12 @@ def confidence_interval_hypergeo_fast(matrix_n: list, alpha: float=0.05) -> list
     ub_control,temp=strat_ci(strata,sams_control,found_control,alternative='upper',cl=1-alpha/4)
     lb_control,temp=strat_ci(strata,sams_control,found_control,alternative='lower',cl=1-alpha/4)
     N=np.sum(matrix_n)
-    return [(lb_treat-ub_control),(ub_treat-lb_control)]
+    return [(lb_treat/ub_control),(ub_treat/lb_control)]
+
+
+# matrix_n=[
+#     [8,21,3,25],
+#     [8,14,2,24]
+# ]
+# print(confidence_interval_hypergeo_fast(matrix_n))
+# print(confidence_interval_hypergeo_ws(matrix_n))

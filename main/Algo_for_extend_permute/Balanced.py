@@ -1,3 +1,5 @@
+# Extended Permutation method, with algorithm in Section A.3
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -121,7 +123,7 @@ def Ni_jiaxun_generator(matrix_Ni_dict: dict, Ni: int, tau: int):
     return matrix_Ni_list_jiaxun
 
 
-def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
+def confidence_interval_permute(matrix_n,alpha=0.05,replication=10000):
     k=len(matrix_n)
     N=[np.sum(matrix_n[i]) for i in range(k)]
     n=[matrix_n[i][0]+matrix_n[i][1] for i in range(k)]
@@ -147,22 +149,21 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
         temp=[]
         for i in range(k):
             temp.append(matrix_N_core_temp[i][tau_vector[i]])
-        matrix_N_core_dict[tau_vector]=product(*temp)
-
+        matrix_N_core_dict[tau_vector]=list(product(*temp))
+    num=0
     for tau_vector in tau_vector_list:
-
         tau=sum(tau_vector)
         if tau<=U and tau>=L:
                 continue
         for matrix_N in matrix_N_core_dict[tau_vector]:
             p=p_value_matrix(matrix_n,matrix_N,Z_perm)
+            num+=1
             if p>alpha:
                 if tau>U:
                     U=tau
-                else:
+                if tau<L:
                     L=tau
                 break
-
     if U%2==1:
         tau_interest=U+1
         ac=0
@@ -186,6 +187,7 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
             if [] not in matrix_N_jiaxun_temp:
                 for matrix_N in product(*matrix_N_jiaxun_temp):
                     p=p_value_matrix(matrix_n,matrix_N,Z_perm)
+                    num+=1
                     if p>alpha:
                         U=tau_interest
                         ac=1
@@ -204,6 +206,7 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
             if [] not in matrix_N_jiaxun_temp:
                 for matrix_N in product(*matrix_N_jiaxun_temp):
                     p=p_value_matrix(matrix_n,matrix_N,Z_perm)
+                    num+=1
                     if p>alpha:
                         U=tau_interest
                         ac=1
@@ -232,6 +235,7 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
             if [] not in matrix_N_jiaxun_temp:
                 for matrix_N in product(*matrix_N_jiaxun_temp):
                     tau=sum(matrix_N[i][1]-matrix_N[i][2] for i in range(k))
+                    num+=1
                     if tau!=tau_interest:
                         continue
                     p=p_value_matrix(matrix_n,matrix_N,Z_perm)
@@ -253,15 +257,79 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=100):
                         matrix_N_jiaxun_temp.append([])
             if [] not in matrix_N_jiaxun_temp:
                 for matrix_N in product(*matrix_N_jiaxun_temp):
+                    num+=1
                     p=p_value_matrix(matrix_n,matrix_N,Z_perm)
                     if p>alpha:
                         L=tau_interest
                         ac=1
                         break
-    return [L, U]
-matrix_n=[
-    [20,0,0,20],
-    [20,0,0,20],
-    [20,0,0,20]
-]
-print(confidence_interval_permute(matrix_n))
+    return [L, U,num]
+
+def binary_search(lb, ub, f):
+    """
+    find in [lb, ub)
+    """
+    s = 0
+    l = lb
+    r = ub
+    while l < r - 1:
+        c = math.floor((l + r) / 2)
+        f_c = f(c)
+        if f_c[0] == 1:
+            l = c
+        else:
+            r = c
+        s += f_c[1]
+    return [l, s]
+
+def binary_search_opp(lb, ub, f):
+    """
+    find in (lb, ub]
+    """
+    s = 0
+    l = lb
+    r = ub
+    while r > l + 1:
+        c = math.ceil((l + r) / 2)
+        f_c = f(c)
+        if f_c[0] == 1:
+            r = c
+        else:
+            l = c
+        s += f_c[1]
+    return [r, s]
+
+def confidence_interval_permute_one_strata(matrix_n,alpha=0.05,replication=100000):
+    N=np.sum(matrix_n)
+    n=matrix_n[0]+matrix_n[1]
+
+    Z_perm=Z_generator([N], [n], replication)
+
+    matrix_N_temp=Ni_generator(matrix_n)
+    tau_list=range(min(matrix_N_temp.keys()),max(matrix_N_temp.keys())+1)
+    matrix_N_core_dict=Ni_core_generator(matrix_N_temp,N)
+    num=0
+    def test_tau(tau):
+        num=0
+        if tau not in matrix_N_core_dict:
+            return [0,0]
+        for matrix_N in matrix_N_core_dict[tau]:
+            p=p_value_matrix([matrix_n],[matrix_N],Z_perm)
+            num+=1
+            if p>=alpha:
+                return [1,num]
+        return [0,num]
+    tauhat=2*(matrix_n[0]-matrix_n[2])
+
+    k2=tauhat
+    k1=matrix_n[3]+matrix_n[0]-N-1
+    L,num1=binary_search_opp(k1,k2,test_tau)
+
+    k1=tauhat
+    k2=matrix_n[3]+matrix_n[0]+1
+    U,num2=binary_search(k1,k2,test_tau)
+    return [L,U,num1+num2]
+
+# matrix_n=[[5, 5, 5, 5],
+#           [5,5,5,5]]
+# print(confidence_interval_permute(matrix_n))

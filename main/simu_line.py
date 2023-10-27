@@ -1,4 +1,6 @@
-import Extended_Permute_balanced
+#Simulation the Figures in Section 5.1
+
+from Algo_for_extend_permute import Balanced
 import Combined_Permute
 import Hypergeo
 import numpy as np
@@ -82,7 +84,7 @@ def simulation_tau_2(N: list, n: list, tau1: int,tau2: int, file_name: str, alph
     time_permute_comb=round(e-s,5)
 
     s=time()
-    ci_permute=Extended_Permute_balanced.confidence_interval_permute(matrix_n,alpha,replication)
+    ci_permute=Balanced.confidence_interval_permute(matrix_n,alpha,replication)[:2]
     e=time()
     time_permute=round(e-s,5)
 
@@ -90,10 +92,6 @@ def simulation_tau_2(N: list, n: list, tau1: int,tau2: int, file_name: str, alph
         writer=csv.writer(csvfile)
         writer.writerow([matrix_n,ci_fast,ci_ws,ci_permute_combine,ci_permute,time_fast,time_ws,time_permute_comb,time_permute])
     return [ci_fast[1]-ci_fast[0],ci_ws[1]-ci_ws[0],ci_permute_combine[1]-ci_permute_combine[0],ci_permute[1]-ci_permute[0]]
-
-
-
-
 
 def simulation_tau_3(N: list, n: list, tau1: int,tau2: int, tau3: int,file_name: str, alpha:float=0.05,replication: int=100,ws1:bool=True,binom=0.5):
 
@@ -198,7 +196,7 @@ def simulation_tau_3(N: list, n: list, tau1: int,tau2: int, tau3: int,file_name:
     time_permute_comb=round(e-s,5)
 
     s=time()
-    ci_permute=Extended_Permute_balanced.confidence_interval_permute(matrix_n,alpha,replication)
+    ci_permute=Balanced.confidence_interval_permute(matrix_n,alpha,replication)[:2]
     e=time()
     time_permute=round(e-s,5)
 
@@ -210,7 +208,7 @@ def simulation_tau_3(N: list, n: list, tau1: int,tau2: int, tau3: int,file_name:
     else:
         return [ci_fast[1]-ci_fast[0],None,ci_permute_combine[1]-ci_permute_combine[0],ci_permute[1]-ci_permute[0]]
 
-def simulation_plot(tau_list: list, file_name: str, alpha:float=0.05,replication: int=100, simulation: int=50,ws1=True,binom=0.5):
+def simulation_plot(tau_list: list, file_name: str, alpha:float=0.05,replication: int=100, simulation: int=100,ws1=True,binom=0.5):
     if len(tau_list)==2:
         for N in range(24,121,4):
             strata_N=[N//2,N//2]
@@ -220,7 +218,7 @@ def simulation_plot(tau_list: list, file_name: str, alpha:float=0.05,replication
             for i in range(simulation):
                 simulation_tau_2(strata_N,strata_n,tau1,tau2,file_name,alpha,replication,binom)
     if len(tau_list)==3:
-        for N in range(24,121,6):
+        for N in range(120,121,6):
             strata_N=[N//3,N//3,N//3]
             strata_n=[N//6,N//6,N//6]
             tau1=int(tau_list[0]*N/3)
@@ -229,4 +227,4 @@ def simulation_plot(tau_list: list, file_name: str, alpha:float=0.05,replication
             for i in range(simulation):
                 simulation_tau_3(strata_N,strata_n,tau1,tau2,tau3,file_name,alpha,replication,ws1,binom)
 
-simulation_plot([0.6,0.6,0.6],r"E:\CollegeLife\UCB first semester\Extended_Li_and_Ding\Paper_Code\csv\tau666_1.csv",binom=0.1)
+# simulation_plot([0,0,0],r"E:\CollegeLife\UCB first semester\Extended_Li_and_Ding\Paper_Code\csv\tau000_test.csv",binom=0.5,ws1=False)

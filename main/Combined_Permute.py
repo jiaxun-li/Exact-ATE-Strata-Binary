@@ -1,9 +1,12 @@
+# Permutation and Combining Function
+
 import numpy as np
 from scipy.stats import chi2
 import math
 from itertools import product
 import scipy.stats as stat
 inf=10000
+
 def fisher(list_p_values: list) -> float:
     l=len(list_p_values)
     for i in list_p_values:
@@ -61,7 +64,6 @@ def filter_table(matrix_ni: list, matrix_Ni: list) -> bool:
 
 
 def default_T(matrix_ni: list, matrix_Ni: list) -> float:
-
     Ni=np.sum(matrix_Ni)
     ni=matrix_ni[0]+matrix_ni[1]
     tau=(matrix_Ni[1]-matrix_Ni[2])/Ni-matrix_ni[0]/ni+matrix_ni[2]/(Ni-ni)
@@ -105,59 +107,18 @@ def Ni_generator(matrix_ni: list):
                     res[N10-N01][min(N10,N01)].append([N11,N10,N01,N00])
     return res
 
-def Ni_core_generator(matrix_Ni_dict: dict, Ni: int):
-    matrix_Ni_dict_core={}
-    for tau in matrix_Ni_dict:
-        temp_N11_N00=[]
-        min_jiaxun1=inf
-        min_jiaxun2=inf
-        for min_N10_N01 in range(Ni//2):
-            if min_N10_N01 not in matrix_Ni_dict[tau]:
-                continue
-            for matrix_Ni in matrix_Ni_dict[tau][min_N10_N01]:
-                N11,N10,N01,N00=matrix_Ni
-                if (N11+N10)%2==1 and abs(N11-N00)<min_jiaxun1:
-                    min_jiaxun1=abs(N11-N00)
-                if (N11+N10)%2==0 and abs(N11-N00)<min_jiaxun2:
-                    min_jiaxun2=abs(N11-N00)
-            for matrix_Ni in matrix_Ni_dict[tau][min_N10_N01]:
-                N11,N10,N01,N00=matrix_Ni
-                if (N11+N10)%2==1 and abs(N11-N00)>min_jiaxun1:
-                    continue
-                if (N11+N10)%2==0 and abs(N11-N00)>min_jiaxun2:
-                    continue
-                if abs(N11-N00) in temp_N11_N00:
-                    continue
-                temp_N11_N00.append(abs(N11-N00))
-                if tau not in matrix_Ni_dict_core:
-                    matrix_Ni_dict_core[tau]=[]
-                matrix_Ni_dict_core[tau].append(matrix_Ni)
-                if tau==0 and min_N10_N01==0:
-                    matrix_Ni_dict_core[tau].append([N11-1,1,1,N00-1])
-    return matrix_Ni_dict_core
-
-
 def p_tau(matrix_ni,Z_perm):
     p_value={}
     Ni=np.sum(matrix_ni)
     ni=matrix_ni[0]+matrix_ni[1]
-    if Ni-ni==ni:
-        matrix_Ni_dict_core=Ni_core_generator(Ni_generator(matrix_ni),Ni)
-        for tau in matrix_Ni_dict_core:
-            p_value[tau]=0
-            for matrix_Ni in matrix_Ni_dict_core[tau]:
+    matrix_Ni_dict=Ni_generator(matrix_ni)
+    for tau in matrix_Ni_dict:
+        p_value[tau]=0
+        for min_N00_N11 in matrix_Ni_dict[tau]:
+            for matrix_Ni in matrix_Ni_dict[tau][min_N00_N11]:
                 p=p_value_matrix(matrix_ni,matrix_Ni,Z_perm)
                 if p>=p_value[tau]:
                     p_value[tau]=p
-    else:
-        matrix_Ni_dict=Ni_generator(matrix_ni)
-        for tau in matrix_Ni_dict:
-            p_value[tau]=0
-            for min_N00_N11 in matrix_Ni_dict[tau]:
-                for matrix_Ni in matrix_Ni_dict[tau][min_N00_N11]:
-                    p=p_value_matrix(matrix_ni,matrix_Ni,Z_perm)
-                    if p>=p_value[tau]:
-                        p_value[tau]=p
     return p_value
 
 def confidence_interval_permute_combine(matrix_n: list, alpha: float=0.05, replication: int=10000, combine: callable=fisher, T: callable=default_T) -> list:
@@ -181,44 +142,8 @@ def confidence_interval_permute_combine(matrix_n: list, alpha: float=0.05, repli
                     L=ATE
     return [L,U]
 
-def p_permute(matrix_n: list, replication: int=10000, T: callable=default_T) -> list:
-    k=len(matrix_n)
-    N=[sum(matrix_n[i]) for i in range(k)]
-    n=[matrix_n[i][0]+matrix_n[i][1] for i in range(k)]
-
-    total_p_value=[{}]*k
-    Z_perm=[Z_generator(N[i], n[i], replication) for i in range(k)]
-    for i in range(k):
-        total_p_value[i]=p_tau(matrix_n[i],Z_perm[i])
-    return total_p_value
-
-def ci_combine(total_p_value: list, combine:callable,alpha:float=0.05) -> list:
-    k=len(total_p_value)    
-    L=inf
-    U=-inf
-    for tau_list in product(*total_p_value):
-        ATE=sum(tau_list)
-        if ATE>U or ATE<L:
-            p_value_list=[total_p_value[i][tau_list[i]] for i in range(k)]
-            if combine(p_value_list)>=alpha:
-                if ATE>U:
-                    U=ATE
-                if ATE<L:
-                    L=ATE
-    return [L,U]
-def ci_wright(total_p_value: list, combine:callable,alpha:float=0.05) -> list:
-    k=len(total_p_value)    
-    L=U=0
-    alpha_strata=1-math.pow((1-alpha),1/k)
-    for i in range(k):
-        U_temp=-inf
-        L_temp=inf
-        for tau in total_p_value[i]:
-            if total_p_value[i][tau]>=alpha_strata:
-                if tau>U_temp:
-                    U_temp=tau
-                if tau<L_temp:
-                    L_temp=tau
-        U+=U_temp
-        L+=L_temp
-    return [L,U]
+# matrix_n=[
+#     [8,21,3,25],
+#     [8,14,2,24]
+# ]
+# print(confidence_interval_permute_combine(matrix_n,replication=10000))
