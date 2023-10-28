@@ -601,9 +601,9 @@ def confidence_interval_hypergeo_ws(matrix_n: list, alpha: float=0.05) -> list:
 
     Parameters:
     ----------    
-    matrix_n_list : a list of 2*2 list of ints 
-        the stratified observed table, each element in the order
-        [n_11, n_10], [n_01, n_00]]
+    matrix_n: a list of lists, each individual list has four ints
+        the stratified observed table, each strata in the order
+        [n_11, n_10, n_01, n_00]
 
     alpha : float
         1-confidence level, default is 0.05
@@ -611,7 +611,7 @@ def confidence_interval_hypergeo_ws(matrix_n: list, alpha: float=0.05) -> list:
     Returns:
     --------
     [lower, upper] : list
-        a list of confidence bound, the first element is the lower bound, the second element is the upper bound
+        confidence bound, the first element is the lower bound, the second element is the upper bound
     '''
     strata=[np.sum(i) for i in matrix_n]
     sams_treat=[i[1]+i[0] for i in matrix_n]
@@ -630,9 +630,9 @@ def confidence_interval_hypergeo_fast(matrix_n: list, alpha: float=0.05) -> list
     calculate the confidence bound for the ATE with given observed table matrix_n by constructing method
 
     Parameters:
-    ----------    
-    matrix_n_list : a list of 2*2 list of ints 
-        the stratified observed table, each element in the order
+    ----------
+    matrix_n: a list of lists, each individual list contains four numbers
+        the stratified observed table, each strata in the order
         [n_11, n_10, n_01, n_00]
 
     alpha : float
@@ -641,7 +641,7 @@ def confidence_interval_hypergeo_fast(matrix_n: list, alpha: float=0.05) -> list
     Returns:
     --------
     [lower, upper] : list
-        a list of confidence bound, the first element is the lower bound, the second element is the upper bound
+        confidence bound, the first element is the lower bound, the second element is the upper bound
     '''
     strata=[np.sum(i) for i in matrix_n]
     sams_treat=[i[0]+i[1] for i in matrix_n]
