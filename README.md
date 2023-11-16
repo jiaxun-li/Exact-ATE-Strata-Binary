@@ -1,2 +1,2 @@
-# Exact-ATE-Strata-Binary
-I put all my incomplete code and simulation data into the 'backup' folder. The code for methodology, algorithm, simulation and case study are in the 'main' folder
+# Exact Inference for Treatment Effect in Blocked Experiments with Binary Outcomes
+This is a incomplete and rough manuscript for Exact Inference for Treatment Effect in Blocked Experiments with Binary Outcomes
