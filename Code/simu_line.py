@@ -227,4 +227,4 @@ def simulation_plot(tau_list: list, file_name: str, alpha:float=0.05,replication
             for i in range(simulation):
                 simulation_tau_3(strata_N,strata_n,tau1,tau2,tau3,file_name,alpha,replication,ws1,binom)
 
-# simulation_plot([0,0,0],r"E:\CollegeLife\UCB first semester\Extended_Li_and_Ding\Paper_Code\csv\tau000_test.csv",binom=0.5,ws1=False)
+# simulation_plot([0,0,0],r"\csv\tau000_test.csv",binom=0.5,ws1=False)

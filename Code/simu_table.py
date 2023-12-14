@@ -100,4 +100,4 @@ def simu_table(matrix_N_list: list,n_list: list, file_name: str,alpha:float=0.05
             with open(file_name,"a") as csvfile:
                 writer=csv.writer(csvfile)
                 writer.writerow(res)
-simu_table(matrix_N_list,n_list,r"E:\CollegeLife\UCB first semester\Extended_Li_and_Ding\Paper_Code\csv\table4.csv")
+#simu_table(matrix_N_list,n_list,r"\csv\table.csv")

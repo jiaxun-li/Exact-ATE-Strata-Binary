@@ -218,4 +218,4 @@ def plot_ci_combine(filename:str,title:str,k:int,simulation:int):
     plt.show()
 
 
-plot_ci(r"E:\CollegeLife\UCB first semester\Extended_Li_and_Ding\Paper_Code\csv\tau-44_1.csv","tau=(-0.4,0.4)",2,100)
+#plot_ci(r"\csv\tau-44_1.csv","tau=(-0.4,0.4)",2,100)
