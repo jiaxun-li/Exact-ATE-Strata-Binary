@@ -206,8 +206,8 @@ def confidence_interval_permute(matrix_n,alpha=0.05,replication=10000):
     return [L, U]
 
 
-# matrix_n=[
-#     [10,10,1,10],
-#     [10,10,10,10]
-# ]
-# print(confidence_interval_permute(matrix_n))
+matrix_n=[
+    [10,10,100,10],
+    [10,10,10,10]
+]
+print(confidence_interval_permute(matrix_n))
